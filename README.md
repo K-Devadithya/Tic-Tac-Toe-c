@@ -1,2 +1,95 @@
-# Tic-Tac-Toe-c
-Hey, I made Tic Tac Toe using c language, Also I made two seperate games where you can play with your friend by your side or you can also play with the computer if you're alone😉. Go check it out now!
+# Tic-Tac-Toe Game in C
+
+A lightweight, terminal-based Tic-Tac-Toe game implemented in C. This project contains two variations: a classic 2-Player Local Mode and an automated Player vs. Computer Mode. Both versions feature explicit terminal screen clearing, robust entry validation, and dynamic grid updates.
+
+---
+
+## Technical Overview: The 2-Player Engine
+
+The base application uses an array-shifting validation algorithm to track open board spots without needing to scan the character matrix repeatedly.
+
+### Core Architecture and State Tracking
+
+* board[9]: Tracks visual display markers ('1' through '9', or 'X' / 'O').
+* entries[9]: A shifting buffer tracking remaining unchosen integers [1-9].
+* size: Tracks the total number of remaining valid moves left on the board (initial value: 9).
+
+---
+
+## Detailed Function Breakdown (Original Game)
+
+### 1. void display_board(char board[9])
+
+Renders the current layout of the game board to the standard output terminal.
+
+* Mechanism: It loops sequentially through the 9-element character array. It utilizes tabs (\t) for horizontal box spacing and a modulo check (count % 3 == 0) to inject a newline (\n) after every third element, dynamically transforming a flat array into a visible 3x3 grid layout.
+
+### 2. int check(int entries[9], int response, int size)
+
+Handles input verification and move tracking. It determines if a user's choice is valid and mutates the remaining valid spots list.
+
+* Mechanism: It iterates through the active bounds of the entries array (up to the current size).
+* If the input response matches an available number inside entries, it flags it as a legal move.
+* Before returning 1 (Success), it runs a nested loop to shift all subsequent elements in the tracking array one index down to the left, deleting the selected choice and preventing dual entries.
+* If the loop finishes without finding a match, it returns 0 (Invalid Choice).
+
+
+
+### 3. int win_condition(char board[9])
+
+Evaluates the board state after every turn to verify if a terminal match condition has been achieved.
+
+* Mechanism:
+* Vertical Columns: Iterates three times (i = 0, 1, 2) checking down offsets (i, i+3, i+6).
+* Horizontal Rows: Iterates through step strides (i = 0, 3, 6) checking line spans (i, i+1, i+2).
+* Diagonals: Hardcoded explicit pointer indexing checking indices [0, 4, 8] and [2, 4, 6].
+
+
+* Output: Returns 1 and prints the winning player if a matching streak is identified; otherwise, returns 0.
+
+### 4. void replace(char board[9], int res, int *count)
+
+Applies the player marker down onto the game field based on the structural flow tracking.
+
+* Mechanism: Evaluates whether the game loop tracking pointer *count is odd or even via a modulo 2 operation. It sets the chosen index (res - 1) to 'O' on an even count, or 'X' on an odd count.
+
+### 5. int main()
+
+The operational core loop of the game. It handles state creation, runs a standard fixed 9-iteration loop, executes screen clears using ANSI Escape characters (\033[H\033[J), sequences user input phases, decrements size, updates states, and exits cleanly upon a calculated win or a full array iteration exhaustion (draw).
+
+---
+
+## Architectural Changes for the Player vs. Computer Version
+
+To convert the local 2-player mode into a Player vs. Computer ecosystem, the following explicit mutations were introduced across the application architecture:
+
+### 1. Global Header Inclusions
+
+* Added: #include <stdlib.h> and #include <time.h>.
+* Reason: Necessary to access the Pseudo-Random Number Generation engine functions (srand and rand) and the system clock profile pointer to seed it.
+
+### 2. main() Setup and Loop Re-engineering
+
+* Random Seeding Engine: Embedded srand(time(NULL)); at the beginning of execution to ensure the computer chooses random locations each runtime.
+* Divergent Control Flow: The game sequence splitting layout inside the loop block was updated. Turn 2 drops scanf and fires a random generation block instead, running rand() % 9 + 1 inside a do-while frame to test random numbers until an open slot is found.
+
+### 3. Structural Variations Breakdown
+
+* win_condition:
+* Original 2-Player Behavior: Explicitly prints "Player 1 wins!" or "Player 2 wins!".
+* Player vs. Computer Behavior: Rephrased output string labels explicitly to "Player wins!" or "Computer wins!".
+
+
+* main() Input Phase:
+* Original 2-Player Behavior: Both turns prompt via standard input (scanf).
+* Player vs. Computer Behavior: Turn 2 drops scanf and fires a random generation block instead (rand() % 9 + 1).
+
+
+* check() Calls:
+* Original 2-Player Behavior: Executed strictly inside user input validation loops.
+* Player vs. Computer Behavior: Executed inside a do-while frame to test random numbers generated by the engine.
+
+
+* replace():
+* Original 2-Player Behavior: Evaluates turns by alternating players sequentially.
+* Player vs. Computer Behavior: Unchanged structurally; however, even turn updates directly assign the computer's choice to 'O'.
